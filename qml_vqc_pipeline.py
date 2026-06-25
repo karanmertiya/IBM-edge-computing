@@ -35,8 +35,8 @@ def run_quantum_ai_pipeline():
         return
     
     # We ask IBM's cloud to find us the least busy, free, operational quantum hardware
-    print("   Searching for available Quantum Hardware...")
-    backend = service.least_busy(simulator=False, operational=True)
+    print("   Searching for available Quantum Hardware (Simulator to protect quota)...")
+    backend = service.least_busy(simulator=True, operational=True)
     print(f"   -> Success! Connected to physical backend: {backend.name}")
     
     # Wrap the backend in a modern Sampler primitive for the ML algorithm
