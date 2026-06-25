@@ -37,7 +37,7 @@ def run_quantum_ai_pipeline():
         print("   Searching for available physical Quantum Hardware...")
         backend = service.least_busy(simulator=False, operational=True)
         print(f"   -> Success! Connected to physical backend: {backend.name}")
-        sampler = Sampler(backend=backend)
+        sampler = Sampler(mode=backend)
     else:
         print("2. Initializing Local Quantum Simulator (No quota consumed)...")
         from qiskit.primitives import StatevectorSampler
