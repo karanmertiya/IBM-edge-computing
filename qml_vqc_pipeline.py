@@ -24,23 +24,25 @@ def run_quantum_ai_pipeline():
     X = MinMaxScaler().fit_transform(X)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    print("2. Authenticating with IBM Quantum Cloud...")
-    # Note: Ensure you have saved your account token before running this.
-    # You only need to save it once using QiskitRuntimeService.save_account(...)
-    try:
-        service = QiskitRuntimeService()
-    except Exception as e:
-        print(f"Failed to authenticate: {e}")
-        print("Please ensure your IBM API token is saved.")
-        return
-    
-    # We ask IBM's cloud to find us the least busy, free, operational quantum hardware
-    print("   Searching for available Quantum Hardware (Simulator to protect quota)...")
-    backend = service.least_busy(simulator=True, operational=True)
-    print(f"   -> Success! Connected to physical backend: {backend.name}")
-    
-    # Wrap the backend in a modern Sampler primitive for the ML algorithm
-    sampler = Sampler(backend=backend)
+    # Change this boolean when you are ready to use physical hardware
+    USE_CLOUD_HARDWARE = True
+
+    if USE_CLOUD_HARDWARE:
+        print("2. Authenticating with IBM Quantum Cloud...")
+        try:
+            service = QiskitRuntimeService()
+        except Exception as e:
+            print(f"Failed to authenticate: {e}")
+            return
+        print("   Searching for available physical Quantum Hardware...")
+        backend = service.least_busy(simulator=False, operational=True)
+        print(f"   -> Success! Connected to physical backend: {backend.name}")
+        sampler = Sampler(backend=backend)
+    else:
+        print("2. Initializing Local Quantum Simulator (No quota consumed)...")
+        from qiskit.primitives import StatevectorSampler
+        sampler = StatevectorSampler()
+        backend = type('obj', (object,), {'name' : 'Local Statevector Simulator'})
 
     print("3. Building the Quantum Neural Network Architecture...")
     num_features = X.shape[1]
