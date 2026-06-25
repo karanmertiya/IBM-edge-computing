@@ -55,13 +55,20 @@ def run_quantum_ai_pipeline():
 
     print("4. Compiling the Hybrid VQC Optimizer...")
     # COBYLA is a classical optimizer that will update our quantum weights based on cloud measurements
-    optimizer = COBYLA(maxiter=30)
+    optimizer = COBYLA(maxiter=8)
     
+    pm = None
+    if USE_CLOUD_HARDWARE:
+        from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+        print("   Generating hardware-specific ISA Pass Manager...")
+        pm = generate_preset_pass_manager(target=backend.target, optimization_level=1)
+
     vqc = VQC(
         sampler=sampler,
         feature_map=feature_map,
         ansatz=ansatz,
-        optimizer=optimizer
+        optimizer=optimizer,
+        pass_manager=pm
     )
 
     print("5. Initiating Cloud Training (This sends jobs to the quantum queue)...")
